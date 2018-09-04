@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "981772721378",
+    "firebase_url": "https://be-my-friend.firebaseio.com",
+    "project_id": "be-my-friend",
+    "storage_bucket": "be-my-friend.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:981772721378:android:8929baf4dce4d43a",
+        "android_client_info": {
+          "package_name": "com.guanhong.firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "981772721378-6ceej7jj1furqh4ue2c9oce6hb1dl1pn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.guanhong.firebase",
+            "certificate_hash": "afa4a28bb830a265cee7e259f45431eeda370a9e"
+          }
+        },
+        {
+          "client_id": "981772721378-2j99dqcnehkgqeo7kt3mo3l8935feopm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2SQQUp59SwAQpSTH_eGTnwF2SgyMe_mI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "981772721378-2j99dqcnehkgqeo7kt3mo3l8935feopm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
