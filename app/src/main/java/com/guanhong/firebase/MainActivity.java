@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mFriendStatus;
     private TextView mTextViewAddFriend;
     private TextView mTextViewPost;
-    private TextView mTextViewSearch;
+    private TextView mTextViewSearchOther;
 
     private TextView mTextViewNextPage;
 
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         mTextViewRegister = findViewById(R.id.textView_register);
 
         mEditTextSearch = findViewById(R.id.editText_search);
-        mTextViewSearch = findViewById(R.id.textView_search);
+        mTextViewSearchOther = findViewById(R.id.textView_search);
         mFriendStatus = findViewById(R.id.textView_status);
         mTextViewAddFriend = findViewById(R.id.textView_addfriend);
 
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         mSpinner.setAdapter(adapter);
 
 
-        mTextViewSearch.setVisibility(View.GONE);
+        mTextViewSearchOther.setVisibility(View.GONE);
         mTextViewPost.setVisibility(View.GONE);
         mTextViewAddFriend.setVisibility(View.GONE);
 //        FirebaseDatabase userDatabase = FirebaseDatabase.getInstance();
@@ -107,20 +108,25 @@ public class MainActivity extends AppCompatActivity {
                 mUserName = mEditTextName.getText().toString();
                 mUserEmail = mEditTextEmail.getText().toString();
 
+                if ("".equals(mUserName) || "".equals(mUserEmail)) {
+                    Toast.makeText(MainActivity.this, "輸入不能為空白", Toast.LENGTH_SHORT).show();
 
-                writeNewUser(mUserName, mUserEmail);
+                } else {
 
-                mTextViewSearch.setVisibility(view.getVisibility());
-                mTextViewPost.setVisibility(view.getVisibility());
 
-                FirebaseDatabase userDatabase = FirebaseDatabase.getInstance();
-                DatabaseReference myUserDataBase = userDatabase.getReference("users");
-//                Query query = myUserDataBase.orderByChild("email").equalTo(otherEmail);
+                    writeNewUser(mUserName, mUserEmail);
 
+                    mTextViewSearchOther.setVisibility(view.getVisibility());
+                    mTextViewPost.setVisibility(view.getVisibility());
+
+                    FirebaseDatabase userDatabase = FirebaseDatabase.getInstance();
+                    DatabaseReference myUserDataBase = userDatabase.getReference("users");
+                    mTextViewRegister.setVisibility(View.GONE);
+                }
 
             }
         });
-        mTextViewSearch.setOnClickListener(new View.OnClickListener() {
+        mTextViewSearchOther.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
 
@@ -145,27 +151,37 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("mFriendStatus", "othername = " + dataSnapshot.child("name").getValue());
                         Log.d("mFriendStatus", "otherId = " + dataSnapshot.child("userId").getValue());
 
-                        SharedPreferences otherData = mContext.getSharedPreferences("otherData", Context.MODE_PRIVATE);
-                        otherData.edit()
-                                .putString("otherId", "" + dataSnapshot.child("userId").getValue())
-                                .commit();
+
 
 //                        if (dataSnapshot.child("invitation").equals(null) || dataSnapshot.child("invitation").equals(null)) {
 //                            mFriendStatus.setText("你們不是好友");
 
 
-                        Log.d(TAG, ""+dataSnapshot.getValue().toString());
+                        Log.d(TAG, "" + dataSnapshot.getValue().toString());
+                        if (dataSnapshot.getValue().toString().contains("invitation")) {
 
-                        if (!dataSnapshot.getValue().toString().contains("invitation")) {
                             mFriendStatus.setText("你們不是好友");
 
                             mTextViewAddFriend.setVisibility(view.getVisibility());
+                            if (!dataSnapshot.child("invitation").getValue().toString().contains(mUserId)) {
+                                mFriendStatus.setText("你們不是好友");
+
+                                mTextViewAddFriend.setVisibility(view.getVisibility());
 //                            if (!dataSnapshot.child("invitation").getValue().toString().contains(mUserId) || !dataSnapshot.child("friends").getValue().toString().contains(mUserId)) {
 //                                mFriendStatus.setText("你們不是好友");
 //                                mTextViewAddFriend.setVisibility(view.getVisibility());
 //                            } else if (dataSnapshot.child("invitation").getValue().toString().contains(mUserId)) {
 //                                mFriendStatus.setText("待確認");
 //                            }
+                            }else {
+                                mFriendStatus.setText("待確認");
+                                mTextViewAddFriend.setVisibility(View.GONE);
+
+                            }
+                        }else {
+                            mFriendStatus.setText("你們不是好友");
+
+                            mTextViewAddFriend.setVisibility(view.getVisibility());
                         }
                     }
 
@@ -203,11 +219,34 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseDatabase userDatabase = FirebaseDatabase.getInstance();
                 DatabaseReference myUserDataBase = userDatabase.getReference("users");
 
-                Query query = myUserDataBase.orderByChild(mUserId);
+                Query query = myUserDataBase.child(mUserId).child("invitation");
                 query.addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        mTextViewFriend.setText(dataSnapshot.child("invitation").getValue() +"");
+
+                        Log.d("gooo1 = ", dataSnapshot.getValue() + "");
+                        Log.d("gooo1 = ", dataSnapshot.getKey() + "");
+
+
+//                        FirebaseDatabase userDatabase = FirebaseDatabase.getInstance();
+//                        DatabaseReference myUserDataBase = userDatabase.getReference("users");
+//                        Query query = myUserDataBase.child(dataSnapshot.getKey()).child("email");
+
+                        findOtherData(dataSnapshot.getKey());
+
+                        SharedPreferences otherData = mContext.getSharedPreferences("otherData", Context.MODE_PRIVATE);
+                        otherData.edit()
+                                .putString("otherId",  dataSnapshot.getKey())
+                                .commit();
+
+
+                        mTextViewFriend.setText(dataSnapshot.getKey() + "");
+//                        Log.d("gooo1", dataSnapshot.child("invitation").getValue() + "");
+//                        Log.d("gooo3", dataSnapshot.child(mUserId).child("invitation") + "");
+
+//                        Log.d("gooo", dataSnapshot.child("invitation").child("待確認").getValue() + "待確認");
+
+//                        if(dataSnapshot.child("invitation").getValue().toString().contains(mUserId))
 //                        if(!dataSnapshot.child("invitation").getValue().toString().equals("")){
 //                            Log.d("gooooooooo ","null");
 //                        }else {
@@ -244,6 +283,10 @@ public class MainActivity extends AppCompatActivity {
         mTextViewFriendConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                mFriendStatus.setText("你們已是好友");
+
+
                 SharedPreferences userData = mContext.getSharedPreferences("userData", Context.MODE_PRIVATE);
                 mUserId = userData.getString("authorId", "");
 
@@ -297,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                mFriendStatus.setText("待確認");
+                mFriendStatus.setText("待接受");
                 mTextViewAddFriend.setVisibility(View.GONE);
 
 
@@ -335,6 +378,44 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+    }
+
+    private void findOtherData(String key) {
+
+        Log.d("keyyy = ", key + "");
+
+
+        FirebaseDatabase userDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference myUserDataBase = userDatabase.getReference("users");
+
+        Query query = myUserDataBase.child(key);
+        query.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d("OtherEmail = ", dataSnapshot.child("").child("email").getValue() + "");
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
     }
 
